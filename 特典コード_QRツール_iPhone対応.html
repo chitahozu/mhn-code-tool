@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>特典コード QR ツール</title>
+<style>
+:root{
+  --bg:#f6f5f2;--surface:#fff;--border:#e2e0da;--border-strong:#c9c6bd;
+  --text:#211f1c;--text-secondary:#6b6860;--text-muted:#9b988f;
+  --accent:#0f6e56;--accent-bg:#e1f5ee;--danger:#a32d2d;--danger-bg:#fcebeb;
+  --radius:10px;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);padding:20px;padding-bottom:80px;font-size:17px;-webkit-tap-highlight-color:transparent}
+.wrap{max-width:640px;margin:0 auto}
+h1{font-size:24px;font-weight:600;margin:4px 0 20px}
+.save-status{font-size:14px;color:var(--text-muted);margin-bottom:20px;min-height:18px}
+.tabs-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;border-bottom:1px solid var(--border);padding-bottom:14px}
+.tab-chip{display:flex;align-items:center;gap:2px}
+.tab-btn,.add-tab-btn{background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:12px 18px;font-size:16px;color:var(--text);cursor:pointer}
+.tab-btn.active{border-color:var(--accent);color:var(--accent);background:var(--accent-bg);font-weight:600}
+.tab-close{background:transparent;border:none;color:var(--text-muted);font-size:20px;padding:8px;line-height:1;cursor:pointer}
+.add-tab-btn{color:var(--accent);font-weight:600}
+label.field-label{display:block;font-size:16px;color:var(--text-secondary);margin-bottom:8px;font-weight:500}
+input[type=text],textarea{width:100%;border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;font-size:18px;background:var(--surface);color:var(--text);-webkit-appearance:none}
+textarea{font-family:ui-monospace,"SFMono-Regular",Menlo,monospace;font-size:16px;resize:vertical}
+.section{margin-bottom:24px}
+.row-inline{display:flex;align-items:center;gap:14px;margin-top:12px;flex-wrap:wrap}
+button{border:1px solid var(--border-strong);background:var(--surface);color:var(--text);border-radius:var(--radius);padding:14px 20px;font-size:17px;font-weight:500;cursor:pointer;-webkit-appearance:none;touch-action:manipulation}
+button.primary{background:var(--text);color:#fff;border-color:var(--text);min-width:150px}
+button:active{opacity:.75}
+.count-label{font-size:15px;color:var(--text-secondary)}
+.error-text{color:var(--danger);font-size:15px;margin:8px 0 0}
+.warn-text{color:#854f0b;font-size:15px;margin:8px 0 0}
+.list-header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.list-header input{width:150px;font-size:15px;padding:10px 12px}
+#code-list{display:flex;flex-direction:column;gap:8px;max-height:460px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.code-row{display:flex;align-items:center;gap:12px;border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;background:var(--surface)}
+.code-row.selected{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.code-num{font-size:14px;color:var(--text-muted);min-width:26px;text-align:right}
+.code-row input[type=checkbox]{width:24px;height:24px;flex-shrink:0}
+.code-btn{flex:1;text-align:left;border:none;background:transparent;padding:0;font-family:ui-monospace,monospace;font-size:17px;color:var(--text);min-width:0;word-break:break-all}
+.code-btn.used{text-decoration:line-through;color:var(--text-muted)}
+#qr-wrap{display:none;margin-top:24px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px;text-align:center}
+#qr-code{display:flex;justify-content:center;margin-bottom:16px}
+#qr-code canvas{width:240px;height:240px;image-rendering:auto}
+#qr-url{font-size:14px;color:var(--text-secondary);margin:0 0 8px;word-break:break-all}
+#qr-link{font-size:16px;color:var(--accent);text-decoration:none;font-weight:500;display:inline-block;padding:8px}
+.used-toggle{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:20px;font-size:16px;color:var(--text-secondary)}
+.used-toggle input{width:24px;height:24px}
+.empty-message{text-align:center;color:var(--text-muted);padding:20px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>特典コード QR ツール</h1>
+<div class="save-status" id="save-status"></div>
+<div class="tabs-row" id="tabs-row"></div>
+
+<div class="section">
+<label class="field-label">タイトル</label>
+<input id="title-input" type="text" placeholder="例: 10周年記念キャンペーン" autocomplete="off">
+</div>
+
+<div class="section">
+<label class="field-label">コードを1行に1つずつ貼り付け（最大100件）</label>
+<textarea id="codes-input" rows="6" placeholder="ABCD-1234-EFGH&#10;WXYZ-5678-IJKL" autocapitalize="characters" spellcheck="false"></textarea>
+<div class="row-inline">
+<button type="button" class="primary" id="parse-btn">一覧に反映</button>
+<span class="count-label" id="count-label"></span>
+</div>
+<p class="error-text" id="input-error" style="display:none;">コードを1つ以上入力してください</p>
+<p class="warn-text" id="limit-note" style="display:none;">101件目以降は読み込まれませんでした（先頭100件のみ対象）</p>
+</div>
+
+<div class="section" id="list-wrap" style="display:none;">
+<div class="list-header">
+<label class="field-label" style="margin:0;">コードを選択</label>
+<input type="text" id="filter-input" placeholder="コードを検索" autocomplete="off">
+</div>
+<div id="code-list"></div>
+</div>
+
+<div id="qr-wrap">
+<div id="qr-code"></div>
+<p id="qr-url"></p>
+<a id="qr-link" href="#" target="_blank" rel="noopener">サイトを開く ↗</a>
+<label class="used-toggle">
+<input type="checkbox" id="mark-used-checkbox">
+使用済みにする
+</label>
+</div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+var BASE="https://store.monsterhunternow.com/ja/offer-redemption?passcode=";
+var MAX=100;
+var STORAGE_KEY="mhn-code-tool-tabs-v2";
+var nextId=1;
+var tabs=[];
+var activeId=1;
+var saveTimer=null;
+
+function newTab(){
+return {id:nextId++,title:"",codesText:"",items:[],usedSet:{},selectedCode:null,filterText:""};
+}
+
+tabs=[newTab()];
+activeId=tabs[0].id;
+
+var tabsRow=document.getElementById("tabs-row");
+var titleInput=document.getElementById("title-input");
+var input=document.getElementById("codes-input");
+var parseBtn=document.getElementById("parse-btn");
+var err=document.getElementById("input-error");
+var limitNote=document.getElementById("limit-note");
+var countLabel=document.getElementById("count-label");
+var listWrap=document.getElementById("list-wrap");
+var list=document.getElementById("code-list");
+var filterInput=document.getElementById("filter-input");
+var qrWrap=document.getElementById("qr-wrap");
+var qrDiv=document.getElementById("qr-code");
+var qrUrl=document.getElementById("qr-url");
+var qrLink=document.getElementById("qr-link");
+var markUsedCheckbox=document.getElementById("mark-used-checkbox");
+var saveStatus=document.getElementById("save-status");
+
+function activeTab(){
+for(var i=0;i<tabs.length;i++) if(tabs[i].id===activeId) return tabs[i];
+return null;
+}
+
+function saveCurrentInputs(){
+var t=activeTab();
+if(!t)return;
+t.title=titleInput.value.trim();
+t.codesText=input.value;
+t.filterText=filterInput.value;
+}
+
+function scheduleSave(){
+saveStatus.textContent="保存中...";
+if(saveTimer)clearTimeout(saveTimer);
+saveTimer=setTimeout(doSave,300);
+}
+
+function doSave(){
+try{
+saveCurrentInputs();
+localStorage.setItem(STORAGE_KEY,JSON.stringify({tabs:tabs,activeId:activeId,nextId:nextId}));
+saveStatus.textContent="保存済み";
+}catch(e){
+saveStatus.textContent="自動保存できませんでした";
+}
+}
+
+function loadSaved(){
+try{
+var raw=localStorage.getItem(STORAGE_KEY);
+if(raw){
+var payload=JSON.parse(raw);
+if(payload && Array.isArray(payload.tabs) && payload.tabs.length){
+tabs=payload.tabs;
+activeId=payload.activeId||tabs[0].id;
+nextId=payload.nextId||1;
+if(!nextId){
+for(var i=0;i<tabs.length;i++)nextId=Math.max(nextId,tabs[i].id+1);
+}
+saveStatus.textContent="保存データを読み込みました";
+}
+}
+}catch(e){}
+renderTabs();
+loadTabIntoForm();
+}
+
+function renderTabs(){
+tabsRow.innerHTML="";
+for(var i=0;i<tabs.length;i++){
+(function(t){
+var chip=document.createElement("div");
+chip.className="tab-chip";
+
+var btn=document.createElement("button");
+btn.type="button";
+btn.className="tab-btn"+(t.id===activeId?" active":"");
+btn.textContent=t.title||("タブ"+t.id);
+btn.addEventListener("click",function(){
+saveCurrentInputs();
+activeId=t.id;
+renderTabs();
+loadTabIntoForm();
+scheduleSave();
+});
+chip.appendChild(btn);
+
+if(tabs.length>1){
+var closeBtn=document.createElement("button");
+closeBtn.type="button";
+closeBtn.className="tab-close";
+closeBtn.textContent="×";
+closeBtn.addEventListener("click",function(ev){
+ev.stopPropagation();
+var idx=tabs.indexOf(t);
+tabs.splice(idx,1);
+if(!tabs.length)tabs=[newTab()];
+if(activeId===t.id)activeId=tabs[Math.max(0,idx-1)].id;
+renderTabs();
+loadTabIntoForm();
+scheduleSave();
+});
+chip.appendChild(closeBtn);
+}
+tabsRow.appendChild(chip);
+})(tabs[i]);
+}
+
+var addBtn=document.createElement("button");
+addBtn.type="button";
+addBtn.className="add-tab-btn";
+addBtn.textContent="+ タブ追加";
+addBtn.addEventListener("click",function(){
+saveCurrentInputs();
+var t=newTab();
+tabs.push(t);
+activeId=t.id;
+renderTabs();
+loadTabIntoForm();
+scheduleSave();
+});
+tabsRow.appendChild(addBtn);
+}
+
+function loadTabIntoForm(){
+var t=activeTab();
+if(!t)return;
+titleInput.value=t.title||"";
+input.value=t.codesText||"";
+filterInput.value=t.filterText||"";
+err.style.display="none";
+limitNote.style.display="none";
+
+if(Array.isArray(t.items)&&t.items.length){
+listWrap.style.display="block";
+updateCount();
+renderList(currentFiltered(t));
+}else{
+listWrap.style.display="none";
+countLabel.textContent="";
+}
+
+if(t.selectedCode&&t.items.indexOf(t.selectedCode)!==-1){
+selectCode(t.selectedCode,false);
+}else{
+t.selectedCode=null;
+qrWrap.style.display="none";
+}
+}
+
+function updateCount(){
+var t=activeTab();
+var used=0;
+for(var i=0;i<t.items.length;i++)if(t.usedSet[t.items[i]])used++;
+countLabel.textContent=t.items.length+" 件読み込み済み（使用済み "+used+" 件）";
+}
+
+function currentFiltered(t){
+var q=(t.filterText||"").trim().toLowerCase();
+if(!q)return t.items;
+return t.items.filter(function(c){return c.toLowerCase().indexOf(q)!==-1;});
+}
+
+function renderList(codes){
+var t=activeTab();
+list.innerHTML="";
+if(!codes.length){
+var empty=document.createElement("div");
+empty.className="empty-message";
+empty.textContent="該当するコードがありません";
+list.appendChild(empty);
+return;
+}
+
+for(var i=0;i<codes.length;i++){
+(function(code){
+var num=t.items.indexOf(code)+1;
+var row=document.createElement("div");
+row.className="code-row"+(code===t.selectedCode?" selected":"");
+
+var numEl=document.createElement("span");
+numEl.className="code-num";
+numEl.textContent=num;
+
+var cb=document.createElement("input");
+cb.type="checkbox";
+cb.checked=!!t.usedSet[code];
+cb.addEventListener("change",function(){
+t.usedSet[code]=cb.checked;
+codeBtn.classList.toggle("used",cb.checked);
+if(t.selectedCode===code)markUsedCheckbox.checked=cb.checked;
+updateCount();
+scheduleSave();
+});
+
+var codeBtn=document.createElement("button");
+codeBtn.type="button";
+codeBtn.className="code-btn"+(t.usedSet[code]?" used":"");
+codeBtn.textContent=code;
+codeBtn.addEventListener("click",function(){
+t.selectedCode=code;
+renderList(currentFiltered(t));
+selectCode(code,true);
+scheduleSave();
+});
+
+row.appendChild(numEl);
+row.appendChild(cb);
+row.appendChild(codeBtn);
+list.appendChild(row);
+})(codes[i]);
+}
+}
+
+function selectCode(code,scroll){
+var t=activeTab();
+var url=BASE+encodeURIComponent(code);
+qrWrap.style.display="block";
+qrUrl.textContent=url;
+qrLink.href=url;
+markUsedCheckbox.checked=!!t.usedSet[code];
+
+makeQR(url);
+
+if(scroll){
+setTimeout(function(){qrWrap.scrollIntoView({behavior:"smooth",block:"nearest"});},50);
+}
+}
+
+/* 外部QRライブラリに依存しない簡易QR生成。
+   iPhoneでネットワークやSafariの制限により外部JSが読めなくても、
+   「一覧に反映」などの画面操作は正常に動くようにしています。 */
+function makeQR(text){
+qrDiv.innerHTML="";
+var canvas=document.createElement("canvas");
+canvas.width=240;canvas.height=240;
+canvas.style.width="240px";canvas.style.height="240px";
+qrDiv.appendChild(canvas);
+
+var ctx=canvas.getContext("2d");
+ctx.fillStyle="#fff";ctx.fillRect(0,0,240,240);
+
+/* QRコード生成はWeb Crypto等に依存せず、外部サービス画像を使用 */
+var img=document.createElement("img");
+img.alt="QRコード";
+img.width=240;img.height=240;
+img.style.width="240px";img.style.height="240px";
+img.src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&data="+encodeURIComponent(text);
+
+img.onload=function(){
+qrDiv.innerHTML="";
+qrDiv.appendChild(img);
+};
+img.onerror=function(){
+qrDiv.innerHTML="";
+var msg=document.createElement("div");
+msg.style.padding="30px 10px";
+msg.style.color="#a32d2d";
+msg.textContent="QRコードを表示できませんでした。ネット接続を確認してください。";
+qrDiv.appendChild(msg);
+};
+}
+
+markUsedCheckbox.addEventListener("change",function(){
+var t=activeTab();
+if(!t||!t.selectedCode)return;
+t.usedSet[t.selectedCode]=markUsedCheckbox.checked;
+renderList(currentFiltered(t));
+updateCount();
+scheduleSave();
+});
+
+parseBtn.addEventListener("click",function(){
+var t=activeTab();
+t.title=titleInput.value.trim();
+t.codesText=input.value;
+
+var raw=input.value.split(/\r?\n/).map(function(s){return s.trim();}).filter(Boolean);
+
+if(raw.length===0){
+err.style.display="block";
+limitNote.style.display="none";
+listWrap.style.display="none";
+qrWrap.style.display="none";
+countLabel.textContent="";
+return;
+}
+
+err.style.display="none";
+var truncated=raw.length>MAX;
+
+t.items=raw.slice(0,MAX);
+t.usedSet={};
+t.selectedCode=null;
+t.filterText="";
+filterInput.value="";
+
+limitNote.style.display=truncated?"block":"none";
+listWrap.style.display="block";
+qrWrap.style.display="none";
+
+renderList(t.items);
+updateCount();
+renderTabs();
+scheduleSave();
+
+listWrap.scrollIntoView({behavior:"smooth",block:"start"});
+});
+
+filterInput.addEventListener("input",function(){
+var t=activeTab();
+t.filterText=filterInput.value;
+renderList(currentFiltered(t));
+});
+
+titleInput.addEventListener("input",function(){
+activeTab().title=titleInput.value.trim();
+renderTabs();
+scheduleSave();
+});
+
+input.addEventListener("input",function(){
+scheduleSave();
+});
+
+loadSaved();
+})();
+</script>
+</body>
+</html>
