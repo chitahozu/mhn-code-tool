@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f4f6f8">
+<link rel="apple-touch-icon" href="IMG_4626.png">
+<link rel="icon" type="image/png" href="IMG_4626.png">
+<title>特典コード QR ツール</title>
+
+<!-- QRコード生成 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<style>
+:root{
+  --bg:#f3f5f7;
+  --card:#ffffff;
+  --text:#18212b;
+  --muted:#707b87;
+  --line:#e1e6eb;
+  --green:#438b64;
+  --green-dark:#31734f;
+  --green-soft:#e8f3ed;
+  --red:#c95b5b;
+  --red-soft:#fff0f0;
+  --shadow:0 8px 28px rgba(24,33,43,.08);
+  --radius:22px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:
+    radial-gradient(circle at 10% 0%,rgba(67,139,100,.10),transparent 32%),
+    var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Hiragino Sans","Yu Gothic",sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+button,input,textarea{font:inherit}
+button{cursor:pointer;-webkit-tap-highlight-color:transparent}
+.app{
+  width:min(760px,100%);
+  margin:auto;
+  padding:18px 16px calc(110px + env(safe-area-inset-bottom));
+}
+.hero{
+  padding:12px 4px 20px;
+}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:13px;
+}
+.brand img{
+  width:48px;height:48px;border-radius:14px;
+  object-fit:cover;
+  box-shadow:0 5px 16px rgba(0,0,0,.12);
+}
+.eyebrow{
+  margin:0 0 3px;
+  font-size:12px;font-weight:700;letter-spacing:.08em;
+  color:var(--green);
+}
+h1{
+  margin:0;
+  font-size:28px;
+  line-height:1.15;
+  letter-spacing:-.03em;
+}
+.subtitle{
+  margin:10px 0 0;
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.6;
+}
+.card{
+  background:rgba(255,255,255,.94);
+  border:1px solid rgba(225,230,235,.9);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:20px;
+  margin-bottom:16px;
+}
+.section-title{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:10px;margin-bottom:14px;
+}
+.section-title h2{
+  margin:0;font-size:19px;letter-spacing:-.02em;
+}
+.pill{
+  border:1px solid var(--line);
+  background:#f8fafb;
+  color:var(--muted);
+  border-radius:999px;
+  padding:6px 10px;
+  font-size:12px;font-weight:700;
+}
+.stats{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
+}
+.stat{
+  background:linear-gradient(180deg,#fff,#f8fafb);
+  border:1px solid var(--line);
+  border-radius:17px;
+  padding:13px 10px;
+  text-align:center;
+}
+.stat strong{display:block;font-size:22px;line-height:1.1}
+.stat span{display:block;margin-top:5px;color:var(--muted);font-size:11px}
+.tabs{
+  display:flex;gap:8px;overflow-x:auto;padding:2px 1px 8px;
+  scrollbar-width:none;
+}
+.tabs::-webkit-scrollbar{display:none}
+.tab{
+  flex:0 0 auto;
+  border:1px solid var(--line);
+  background:#f7f9fa;
+  color:#52606c;
+  border-radius:999px;
+  padding:10px 14px;
+  font-size:13px;font-weight:700;
+  display:flex;align-items:center;gap:8px;
+}
+.tab.active{
+  background:var(--green);
+  color:#fff;border-color:var(--green);
+  box-shadow:0 5px 14px rgba(67,139,100,.24);
+}
+.tab .x{
+  width:19px;height:19px;border-radius:50%;
+  display:grid;place-items:center;
+  background:rgba(0,0,0,.08);font-size:13px;
+}
+.tab.active .x{background:rgba(255,255,255,.18)}
+.add-tab{
+  border:1px dashed #b9c4cc;
+  background:#fff;color:var(--green);
+  border-radius:999px;padding:10px 14px;font-weight:800;
+  flex:0 0 auto;
+}
+.input-row{
+  display:flex;gap:9px;align-items:stretch;
+}
+input,textarea{
+  width:100%;
+  border:1px solid var(--line);
+  background:#fbfcfd;
+  color:var(--text);
+  border-radius:15px;
+  outline:none;
+  transition:.15s;
+}
+input{padding:13px 14px}
+textarea{
+  min-height:150px;
+  padding:14px;
+  resize:vertical;
+  line-height:1.55;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+input:focus,textarea:focus{
+  border-color:#83b69a;
+  box-shadow:0 0 0 4px rgba(67,139,100,.10);
+  background:#fff;
+}
+label{
+  display:block;
+  color:var(--muted);
+  font-size:13px;font-weight:800;
+  margin:0 0 8px;
+}
+.btn{
+  border:1px solid var(--line);
+  background:#fff;color:var(--text);
+  border-radius:14px;padding:12px 15px;
+  font-weight:800;
+}
+.btn.primary{
+  background:var(--green);border-color:var(--green);color:#fff;
+  box-shadow:0 5px 14px rgba(67,139,100,.20);
+}
+.btn.primary:active{background:var(--green-dark)}
+.btn.danger{background:var(--red-soft);color:var(--red);border-color:#f0cccc}
+.btn.small{padding:9px 11px;font-size:12px;border-radius:12px}
+.help{color:var(--muted);font-size:12px;margin:9px 2px 0;line-height:1.5}
+.search{position:relative;margin-top:4px}
+.search input{padding-left:40px}
+.search-icon{
+  position:absolute;left:14px;top:50%;transform:translateY(-50%);
+  color:#8b96a0;font-size:17px;pointer-events:none;
+}
+.list{display:grid;gap:9px;margin-top:14px}
+.code-item{
+  display:flex;align-items:center;gap:10px;
+  padding:12px;
+  border:1px solid var(--line);
+  border-radius:17px;
+  background:#fff;
+  transition:.15s;
+}
+.code-item:active{transform:scale(.995)}
+.num{
+  width:34px;flex:0 0 34px;
+  color:#98a2ab;font-size:12px;font-weight:800;text-align:center;
+}
+.code-main{min-width:0;flex:1}
+.code-text{
+  display:block;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:14px;font-weight:800;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.status{
+  display:inline-flex;align-items:center;gap:5px;
+  margin-top:6px;padding:4px 8px;border-radius:999px;
+  background:#f1f4f5;color:#77828c;font-size:10px;font-weight:800;
+}
+.status.unused{background:var(--green-soft);color:var(--green-dark)}
+.code-actions{display:flex;gap:6px;flex:0 0 auto}
+.empty{
+  padding:28px 12px;text-align:center;color:var(--muted);
+  border:1px dashed #cbd3da;border-radius:17px;
+  background:#fafbfc;
+}
+.empty strong{display:block;color:var(--text);margin-bottom:5px}
+.bottom{
+  position:fixed;left:0;right:0;bottom:0;
+  padding:10px 16px calc(10px + env(safe-area-inset-bottom));
+  background:rgba(255,255,255,.88);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+  border-top:1px solid rgba(220,225,230,.8);
+  z-index:20;
+}
+.bottom-inner{width:min(760px,100%);margin:auto;display:flex;gap:9px}
+.bottom .btn{flex:1}
+
+.overlay{
+  position:fixed;inset:0;
+  background:rgba(12,18,24,.52);
+  backdrop-filter:blur(5px);
+  -webkit-backdrop-filter:blur(5px);
+  display:none;align-items:flex-end;justify-content:center;
+  z-index:100;
+}
+.overlay.show{display:flex}
+.modal{
+  width:min(620px,100%);
+  background:#fff;
+  border-radius:28px 28px 0 0;
+  padding:20px 18px calc(20px + env(safe-area-inset-bottom));
+  box-shadow:0 -10px 50px rgba(0,0,0,.18);
+  animation:up .2s ease-out;
+}
+@keyframes up{from{transform:translateY(30px);opacity:.5}to{transform:none;opacity:1}}
+.modal-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.modal-head h3{margin:0;font-size:18px}
+.close{
+  width:40px;height:40px;border-radius:50%;
+  border:1px solid var(--line);background:#f7f9fa;
+  font-size:21px;color:#65717b;
+}
+.qr-box{
+  margin:18px auto 14px;
+  width:270px;height:270px;
+  border-radius:22px;
+  border:1px solid var(--line);
+  display:grid;place-items:center;
+  background:#fff;
+  box-shadow:inset 0 0 0 10px #fff,0 10px 30px rgba(0,0,0,.08);
+}
+#qrcode{line-height:0}
+.qr-code-label{text-align:center;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:800;font-size:15px;word-break:break-all}
+.modal-actions{display:flex;gap:9px;margin-top:16px}
+.modal-actions .btn{flex:1}
+
+.toast{
+  position:fixed;left:50%;bottom:88px;transform:translate(-50%,15px);
+  background:#18212b;color:#fff;padding:10px 15px;border-radius:999px;
+  font-size:12px;font-weight:800;opacity:0;pointer-events:none;
+  transition:.2s;z-index:150;white-space:nowrap;
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media(max-width:520px){
+  .app{padding-left:13px;padding-right:13px}
+  .card{padding:17px;border-radius:20px}
+  h1{font-size:25px}
+  .code-actions .btn span{display:none}
+  .code-actions .btn{padding:10px}
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+  <header class="hero">
+    <div class="brand">
+      <img src="IMG_4626.png" alt="アプリアイコン">
+      <div>
+        <p class="eyebrow">MHNOW CODE TOOL</p>
+        <h1>特典コード QR ツール</h1>
+      </div>
+    </div>
+    <p class="subtitle">コードをタップして、QRコードをすぐ表示できます。</p>
+  </header>
+
+  <section class="card">
+    <div class="section-title">
+      <h2>概要</h2>
+      <span class="pill" id="tabNamePill">現在のタブ</span>
+    </div>
+    <div class="stats">
+      <div class="stat"><strong id="totalCount">0</strong><span>登録コード</span></div>
+      <div class="stat"><strong id="unusedCount">0</strong><span>未使用</span></div>
+      <div class="stat"><strong id="usedCount">0</strong><span>使用済み</span></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="section-title"><h2>コード一覧</h2></div>
+    <div class="tabs" id="tabs"></div>
+
+    <div style="margin-top:12px">
+      <label for="tabTitle">現在のタブ名</label>
+      <div class="input-row">
+        <input id="tabTitle" type="text" placeholder="例：CAギルドカード背景">
+        <button class="btn" id="renameBtn">変更</button>
+      </div>
+    </div>
+
+    <div style="margin-top:17px">
+      <label for="codeInput">コードを1行に1つ入力（最大100件）</label>
+      <textarea id="codeInput" placeholder="ABC123
+DEF456
+GHI789"></textarea>
+      <div class="input-row" style="margin-top:9px">
+        <button class="btn primary" id="addBtn">一覧に追加</button>
+        <button class="btn" id="clearInputBtn">入力を消去</button>
+      </div>
+      <p class="help">同じコードがすでにある場合は重複して追加しません。</p>
+    </div>
+
+    <div style="margin-top:18px">
+      <div class="input-row">
+        <div class="search" style="flex:1">
+          <span class="search-icon">⌕</span>
+          <input id="searchInput" type="search" placeholder="コードを検索">
+        </div>
+        <button class="btn danger" id="deleteTabBtn">タブ削除</button>
+      </div>
+    </div>
+
+    <div class="list" id="codeList"></div>
+  </section>
+</div>
+
+<div class="bottom">
+  <div class="bottom-inner">
+    <button class="btn" id="newTabBtn">＋ 新しいタブ</button>
+    <button class="btn primary" id="topBtn">↑ 上へ</button>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>QRコード</h3>
+      <button class="close" id="closeModal">×</button>
+    </div>
+    <div class="qr-box"><div id="qrcode"></div></div>
+    <div class="qr-code-label" id="modalCode"></div>
+    <div class="modal-actions">
+      <button class="btn" id="markUsedBtn">使用済みにする</button>
+      <button class="btn primary" id="closeModalBtn">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+  const KEY = "mhn_qr_tool_v2";
+  const MAX = 100;
+
+  let state = loadState();
+  let currentCode = null;
+
+  const $ = id => document.getElementById(id);
+
+  function defaultState(){
+    return {
+      active: "tab-1",
+      tabs: [
+        {id:"tab-1", title:"CAギルドカード背景", items:[]}
+      ]
+    };
+  }
+
+  function loadState(){
+    try{
+      const saved = JSON.parse(localStorage.getItem(KEY));
+      if(saved && Array.isArray(saved.tabs) && saved.tabs.length){
+        if(!saved.tabs.find(t => t.id === saved.active)) saved.active = saved.tabs[0].id;
+        return saved;
+      }
+    }catch(e){}
+    return defaultState();
+  }
+
+  function save(){
+    localStorage.setItem(KEY, JSON.stringify(state));
+  }
+
+  function activeTab(){
+    return state.tabs.find(t => t.id === state.active) || state.tabs[0];
+  }
+
+  function esc(s){
+    return String(s).replace(/[&<>"']/g, c => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    }[c]));
+  }
+
+  function render(){
+    const tab = activeTab();
+    $("tabNamePill").textContent = tab.title || "名称未設定";
+    $("tabTitle").value = tab.title || "";
+
+    renderTabs();
+    renderList();
+    updateStats();
+  }
+
+  function renderTabs(){
+    const box = $("tabs");
+    box.innerHTML = "";
+    state.tabs.forEach(tab => {
+      const b = document.createElement("button");
+      b.className = "tab" + (tab.id === state.active ? " active" : "");
+      b.innerHTML = `<span>${esc(tab.title || "名称未設定")}</span><span class="x" aria-label="削除">×</span>`;
+      b.addEventListener("click", e => {
+        if(e.target.classList.contains("x")){
+          e.stopPropagation();
+          deleteTab(tab.id);
+        }else{
+          state.active = tab.id;
+          save();
+          render();
+          window.scrollTo({top:0,behavior:"smooth"});
+        }
+      });
+      box.appendChild(b);
+    });
+    const add = document.createElement("button");
+    add.className = "add-tab";
+    add.textContent = "＋";
+    add.title = "新しいタブ";
+    add.addEventListener("click", createTab);
+    box.appendChild(add);
+  }
+
+  function renderList(){
+    const tab = activeTab();
+    const q = $("searchInput").value.trim().toLowerCase();
+    const list = $("codeList");
+
+    const filtered = tab.items.filter(x => x.code.toLowerCase().includes(q));
+
+    if(!filtered.length){
+      list.innerHTML = `
+        <div class="empty">
+          <strong>${q ? "該当するコードがありません" : "まだコードがありません"}</strong>
+          <span>${q ? "検索条件を変えてください。" : "上の入力欄からコードを追加してください。"}</span>
+        </div>`;
+      return;
+    }
+
+    list.innerHTML = "";
+    filtered.forEach((item, index) => {
+      const row = document.createElement("div");
+      row.className = "code-item";
+      row.innerHTML = `
+        <div class="num">${String(tab.items.indexOf(item)+1).padStart(3,"0")}</div>
+        <div class="code-main">
+          <span class="code-text">${esc(item.code)}</span>
+          <span class="status ${item.used ? "" : "unused"}">${item.used ? "✓ 使用済み" : "● 未使用"}</span>
+        </div>
+        <div class="code-actions">
+          <button class="btn small primary qrBtn"><span>QR</span> ▣</button>
+          <button class="btn small danger deleteCodeBtn">×</button>
+        </div>`;
+      row.querySelector(".qrBtn").addEventListener("click", () => showQR(item.code));
+      row.querySelector(".deleteCodeBtn").addEventListener("click", () => deleteCode(item.code));
+      row.addEventListener("click", e => {
+        if(!e.target.closest("button")) showQR(item.code);
+      });
+      list.appendChild(row);
+    });
+  }
+
+  function updateStats(){
+    const items = activeTab().items;
+    $("totalCount").textContent = items.length;
+    $("unusedCount").textContent = items.filter(x=>!x.used).length;
+    $("usedCount").textContent = items.filter(x=>x.used).length;
+  }
+
+  function addCodes(){
+    const tab = activeTab();
+    const raw = $("codeInput").value;
+    const codes = [...new Set(raw.split(/\r?\n/).map(s=>s.trim()).filter(Boolean))];
+
+    if(!codes.length){
+      toast("コードを入力してください");
+      return;
+    }
+
+    const existing = new Set(tab.items.map(x=>x.code.toUpperCase()));
+    let added = 0;
+
+    for(const code of codes){
+      if(tab.items.length >= MAX) break;
+      if(!existing.has(code.toUpperCase())){
+        tab.items.push({code, used:false});
+        existing.add(code.toUpperCase());
+        added++;
+      }
+    }
+
+    save();
+    $("codeInput").value = "";
+    render();
+    toast(added ? `${added}件追加しました` : "追加できる新しいコードがありません");
+  }
+
+  function deleteCode(code){
+    const tab = activeTab();
+    const item = tab.items.find(x=>x.code === code);
+    if(!item) return;
+    if(!confirm(`「${code}」を削除しますか？`)) return;
+    tab.items = tab.items.filter(x=>x.code !== code);
+    save(); render(); toast("コードを削除しました");
+  }
+
+  function createTab(){
+    const title = prompt("新しいタブ名を入力してください", "新しい特典コード");
+    if(title === null) return;
+    const clean = title.trim() || "新しい特典コード";
+    const id = "tab-" + Date.now();
+    state.tabs.push({id, title:clean, items:[]});
+    state.active = id;
+    save(); render();
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
+
+  function deleteTab(id){
+    if(state.tabs.length <= 1){
+      toast("最後の1つのタブは削除できません");
+      return;
+    }
+    const tab = state.tabs.find(t=>t.id===id);
+    if(!tab) return;
+    const ok = confirm(`「${tab.title}」を削除しますか？\nこのタブのコードもすべて削除されます。`);
+    if(!ok) return;
+    state.tabs = state.tabs.filter(t=>t.id!==id);
+    if(state.active===id) state.active = state.tabs[0].id;
+    save(); render(); toast("タブを削除しました");
+  }
+
+  function renameTab(){
+    const tab = activeTab();
+    const name = $("tabTitle").value.trim();
+    if(!name){ toast("タブ名を入力してください"); return; }
+    tab.title = name;
+    save(); render(); toast("タブ名を変更しました");
+  }
+
+  function showQR(code){
+    currentCode = code;
+    $("qrcode").innerHTML = "";
+    if(typeof QRCode === "undefined"){
+      $("qrcode").textContent = "QRコード機能を読み込めませんでした";
+    }else{
+      const redeemUrl = "https://store.monsterhunternow.com/ja/offer-redemption?passcode=" + encodeURIComponent(code);
+      new QRCode($("qrcode"), {
+        text: redeemUrl,
+        width: 230,
+        height: 230,
+        correctLevel: QRCode.CorrectLevel.M
+      });
+    }
+    $("modalCode").textContent = code;
+    const item = activeTab().items.find(x=>x.code===code);
+    $("markUsedBtn").textContent = item && item.used ? "未使用に戻す" : "使用済みにする";
+    $("overlay").classList.add("show");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeQR(){
+    $("overlay").classList.remove("show");
+    document.body.style.overflow = "";
+    currentCode = null;
+  }
+
+  function toggleUsed(){
+    if(!currentCode) return;
+    const item = activeTab().items.find(x=>x.code===currentCode);
+    if(!item) return;
+    item.used = !item.used;
+    save();
+    $("markUsedBtn").textContent = item.used ? "未使用に戻す" : "使用済みにする";
+    render();
+    toast(item.used ? "使用済みにしました" : "未使用に戻しました");
+  }
+
+  let toastTimer;
+  function toast(msg){
+    const el = $("toast");
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>el.classList.remove("show"),1800);
+  }
+
+  $("addBtn").addEventListener("click", addCodes);
+  $("clearInputBtn").addEventListener("click", () => $("codeInput").value = "");
+  $("renameBtn").addEventListener("click", renameTab);
+  $("newTabBtn").addEventListener("click", createTab);
+  $("deleteTabBtn").addEventListener("click", () => deleteTab(state.active));
+  $("searchInput").addEventListener("input", renderList);
+  $("closeModal").addEventListener("click", closeQR);
+  $("closeModalBtn").addEventListener("click", closeQR);
+  $("markUsedBtn").addEventListener("click", toggleUsed);
+  $("topBtn").addEventListener("click", ()=>window.scrollTo({top:0,behavior:"smooth"}));
+  $("overlay").addEventListener("click", e => { if(e.target === $("overlay")) closeQR(); });
+
+  $("codeInput").addEventListener("keydown", e => {
+    if((e.ctrlKey || e.metaKey) && e.key === "Enter") addCodes();
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
