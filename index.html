@@ -1,677 +1,819 @@
 <!DOCTYPE html>
-
 <html lang="ja">
-
 <head>
-
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-
 <meta name="apple-mobile-web-app-capable" content="yes">
-
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-
+<meta name="theme-color" content="#f5f7f8">
 <title>特典コード QR ツール</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <style>
-
-:root{--bg:#f5f7f8;--card:#fff;--text:#17202a;--muted:#68737d;--line:#dfe5e9;--green:#25855b;--green2:#e5f4ed;--red:#d94b4b;--shadow:0 2px 12px #0000000d}
-
+:root{
+  --bg:#f5f7f8;
+  --card:#ffffff;
+  --text:#17202a;
+  --muted:#68737d;
+  --line:#dfe5e9;
+  --green:#27845a;
+  --green-bg:#e8f5ee;
+  --red:#d64c4c;
+  --red-bg:#fff0f0;
+  --shadow:0 2px 14px rgba(0,0,0,.06);
+  --radius:18px;
+}
 *{box-sizing:border-box}
-
-body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Hiragino Sans",Arial,sans-serif}
-
-.wrap{max-width:680px;margin:auto;padding:18px 14px 40px}
-
-h1{font-size:27px;margin:8px 2px 18px}
-
-.sub{color:var(--muted);font-size:14px;margin:-10px 2px 18px}
-
-.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:14px;box-shadow:var(--shadow)}
-
-.tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
-
-.tab{flex:0 0 auto;border:1px solid var(--line);background:#fff;border-radius:999px;padding:10px 16px;font-size:15px}
-
-.tab.active{background:var(--green2);border-color:var(--green);color:var(--green);font-weight:700}
-
-.row{display:flex;gap:9px;align-items:center}
-
-input,textarea{width:100%;border:1px solid var(--line);border-radius:12px;background:#fff;padding:12px 13px;font-size:16px;color:var(--text);outline:none}
-
-textarea{min-height:125px;resize:vertical;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;line-height:1.55}
-
-input:focus,textarea:focus{border-color:var(--green);box-shadow:0 0 0 3px #25855b18}
-
-button{border:1px solid var(--line);background:#fff;color:var(--text);border-radius:12px;padding:11px 15px;font-size:15px;font-weight:600}
-
-button.green{background:var(--green);color:#fff;border-color:var(--green)}
-
-label{display:block;color:var(--muted);font-size:13px;font-weight:700;margin:0 0 7px}
-
-.stats{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
-
-.pill{background:#f0f2f3;border-radius:999px;padding:7px 11px;font-size:13px;color:#505a62}
-
-.list{display:grid;gap:8px;margin-top:12px}
-
-.code{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:13px;padding:8px}
-
-.num{width:28px;text-align:right;color:#8a939a;font-size:13px}
-
-.check{width:22px;height:22px;accent-color:var(--green);flex:0 0 auto}
-
-.codebtn{flex:1;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;background:#f3f4f5;border:0;border-radius:999px;padding:9px 12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px}
-
-.used{opacity:.55}
-
-.used .codebtn{text-decoration:line-through}
-
-.empty{text-align:center;color:var(--muted);padding:30px 10px}
-
-.hint{font-size:12px;color:var(--muted);line-height:1.5}
-
-.modal{position:fixed;inset:0;background:#0008;display:none;align-items:center;justify-content:center;padding:20px;z-index:10}
-
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Hiragino Sans","Yu Gothic",Arial,sans-serif;
+}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+.wrap{
+  width:100%;
+  max-width:700px;
+  margin:0 auto;
+  padding:18px 14px 42px;
+}
+.header{
+  padding:8px 2px 16px;
+}
+h1{
+  margin:0;
+  font-size:28px;
+  line-height:1.25;
+  letter-spacing:.01em;
+}
+.subtitle{
+  margin-top:7px;
+  color:var(--muted);
+  font-size:14px;
+}
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:16px;
+  margin-bottom:14px;
+}
+.section-title{
+  font-size:15px;
+  font-weight:700;
+  margin:0 0 10px;
+}
+.tabs{
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  padding:1px 1px 5px;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+}
+.tabs::-webkit-scrollbar{display:none}
+.tab{
+  flex:0 0 auto;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  border:1px solid var(--line);
+  background:#fff;
+  color:var(--text);
+  border-radius:999px;
+  padding:9px 10px 9px 15px;
+  min-height:42px;
+}
+.tab.active{
+  background:var(--green-bg);
+  border-color:var(--green);
+  color:var(--green);
+  font-weight:700;
+}
+.tab-name{
+  max-width:190px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.tab-x{
+  width:26px;
+  height:26px;
+  border:0;
+  border-radius:50%;
+  background:transparent;
+  color:#8a939a;
+  display:grid;
+  place-items:center;
+  padding:0;
+  font-size:18px;
+  line-height:1;
+}
+.tab-x:active{background:#dfe5e9}
+.add-tab{
+  flex:0 0 auto;
+  border:1px dashed var(--green);
+  background:#fff;
+  color:var(--green);
+  border-radius:999px;
+  padding:9px 15px;
+  min-height:42px;
+  font-weight:700;
+}
+.field{margin-bottom:14px}
+label{
+  display:block;
+  color:var(--muted);
+  font-size:13px;
+  font-weight:700;
+  margin-bottom:7px;
+}
+input,textarea{
+  width:100%;
+  border:1px solid var(--line);
+  border-radius:13px;
+  background:#fff;
+  color:var(--text);
+  padding:12px 13px;
+  outline:none;
+}
+input{min-height:46px}
+textarea{
+  min-height:150px;
+  resize:vertical;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  line-height:1.55;
+}
+input:focus,textarea:focus{
+  border-color:var(--green);
+  box-shadow:0 0 0 3px rgba(39,132,90,.12);
+}
+.actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.btn{
+  border:1px solid var(--line);
+  background:#fff;
+  color:var(--text);
+  border-radius:12px;
+  min-height:44px;
+  padding:10px 15px;
+  font-weight:700;
+}
+.btn.primary{
+  background:var(--green);
+  color:#fff;
+  border-color:var(--green);
+}
+.btn.danger{
+  color:var(--red);
+  background:var(--red-bg);
+  border-color:#f0cccc;
+}
+.btn.small{
+  min-height:38px;
+  padding:8px 12px;
+  font-size:14px;
+}
+.hint{
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.55;
+  margin-top:8px;
+}
+.stats{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  margin:12px 0 10px;
+}
+.pill{
+  background:#f0f2f3;
+  color:#505a62;
+  border-radius:999px;
+  padding:7px 11px;
+  font-size:13px;
+}
+.list{
+  display:grid;
+  gap:8px;
+}
+.code-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  border:1px solid var(--line);
+  background:#fff;
+  border-radius:13px;
+  padding:8px;
+  transition:.15s;
+}
+.code-row.used{opacity:.52}
+.num{
+  width:28px;
+  flex:0 0 28px;
+  text-align:right;
+  color:#8b949b;
+  font-size:13px;
+}
+.check{
+  width:22px;
+  height:22px;
+  flex:0 0 22px;
+  accent-color:var(--green);
+}
+.code-btn{
+  flex:1;
+  min-width:0;
+  border:0;
+  background:#f2f4f5;
+  color:var(--text);
+  border-radius:999px;
+  padding:10px 13px;
+  text-align:left;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:14px;
+}
+.code-row.used .code-btn{text-decoration:line-through}
+.empty{
+  text-align:center;
+  color:var(--muted);
+  padding:30px 10px 24px;
+}
+.top-action{
+  display:flex;
+  gap:8px;
+  margin-bottom:10px;
+}
+.top-action .btn{flex:1}
+.modal{
+  position:fixed;
+  inset:0;
+  z-index:100;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,.58);
+  padding:18px;
+}
 .modal.show{display:flex}
-
-.modalbox{background:#fff;border-radius:22px;padding:22px;max-width:360px;width:100%;text-align:center}
-
-.qr{display:flex;justify-content:center;margin:18px 0}
-
-.qr canvas,.qr img{max-width:100%;height:auto}
-
-.modalcode{font-family:ui-monospace,monospace;font-size:17px;font-weight:700;word-break:break-all;margin:12px 0}
-
-@media(min-width:600px){.wrap{padding-top:28px}}
-
+.modal-box{
+  width:100%;
+  max-width:390px;
+  background:#fff;
+  border-radius:22px;
+  padding:20px;
+  text-align:center;
+  box-shadow:0 12px 45px rgba(0,0,0,.22);
+}
+.modal-title{
+  font-size:19px;
+  font-weight:800;
+}
+.qr{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:260px;
+  margin:12px 0;
+}
+.qr img,.qr canvas{
+  width:240px !important;
+  height:240px !important;
+  image-rendering:auto;
+}
+.modal-code{
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:16px;
+  font-weight:800;
+  word-break:break-all;
+  margin:6px 0 14px;
+}
+.modal-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.toast{
+  position:fixed;
+  left:50%;
+  bottom:24px;
+  transform:translateX(-50%) translateY(20px);
+  z-index:200;
+  background:#17202a;
+  color:#fff;
+  border-radius:999px;
+  padding:10px 15px;
+  font-size:13px;
+  opacity:0;
+  pointer-events:none;
+  transition:.2s;
+}
+.toast.show{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+}
+@media(max-width:420px){
+  .wrap{padding-left:11px;padding-right:11px}
+  h1{font-size:25px}
+  .card{padding:14px}
+  .tab-name{max-width:145px}
+}
 </style>
-
 </head>
 
 <body>
-
 <div class="wrap">
 
-<h1>特典コード QR ツール</h1>
+  <header class="header">
+    <h1>特典コード QR ツール</h1>
+    <div class="subtitle">コードをタップするとQRコードをすぐ表示できます</div>
+  </header>
 
-<div class="sub">コードを選ぶだけでQRコードをすぐ表示できます</div>
+  <section class="card">
+    <div class="section-title">コード一覧</div>
+    <div id="tabs" class="tabs"></div>
+  </section>
 
-<div class="card">
+  <section class="card">
+    <div class="section-title">現在のタブ</div>
 
-<div id="tabs" class="tabs"></div>
+    <div class="field">
+      <label for="title">タブ名</label>
+      <input id="title" type="text" placeholder="例：CAギルドカード背景">
+    </div>
 
-</div>
+    <div class="field">
+      <label for="input">コードを1行に1つ貼り付け（最大100件）</label>
+      <textarea id="input" placeholder="ABC123&#10;DEF456&#10;GHI789"></textarea>
+    </div>
 
-<div class="card">
+    <div class="actions">
+      <button class="btn primary" id="add">一覧に追加</button>
+      <button class="btn" id="clearInput">入力を消去</button>
+    </div>
 
-<label>タイトル</label>
+    <div class="hint">同じコードがすでにある場合は重複して追加しません。</div>
+  </section>
 
-<input id="title" placeholder="例：CAギルドカード背景">
+  <section class="card">
+    <div class="top-action">
+      <button class="btn small" id="rename">タブ名を変更</button>
+      <button class="btn small danger" id="deleteTab">このタブを削除</button>
+    </div>
 
-<div style="height:12px"></div>
+    <div class="field" style="margin-bottom:8px">
+      <label for="search">コードを検索</label>
+      <input id="search" type="search" placeholder="コードを入力して検索">
+    </div>
 
-<label>コードを1行に1つ入力（最大100件）</label>
+    <div class="stats">
+      <span class="pill" id="total">0件</span>
+      <span class="pill" id="unused">未使用 0件</span>
+      <span class="pill" id="used">使用済み 0件</span>
+    </div>
 
-<textarea id="input" placeholder="コードを1行ずつ貼り付け"></textarea>
-
-<div class="row" style="margin-top:10px">
-
-<button class="green" id="add">一覧に反映</button>
-
-<button id="clear">入力を消去</button>
-
-</div>
-
-<div class="hint" style="margin-top:8px">
-
-既存の保存データがある場合は自動的に引き継ぎます。
-
-</div>
-
-</div>
-
-<div class="card">
-
-<div class="row">
-
-<div style="flex:1">
-
-<label>コードを検索</label>
-
-<input id="search" placeholder="コードを検索">
-
-</div>
-
-</div>
-
-<div class="stats">
-
-<span class="pill" id="total">0件</span>
-
-<span class="pill" id="unused">未使用 0件</span>
-
-<span class="pill" id="used">使用済み 0件</span>
-
-</div>
-
-<div id="list" class="list"></div>
-
-</div>
+    <div id="list" class="list"></div>
+  </section>
 
 </div>
 
 <div id="modal" class="modal">
+  <div class="modal-box">
+    <div class="modal-title">QRコード</div>
+    <div id="qr" class="qr"></div>
+    <div id="modalCode" class="modal-code"></div>
 
-<div class="modalbox">
-
-<div style="font-size:18px;font-weight:700">
-
-QRコード
-
+    <div class="modal-actions">
+      <button class="btn primary" id="toggleUsed">使用済みにする</button>
+      <button class="btn" id="closeModal">閉じる</button>
+    </div>
+  </div>
 </div>
 
-<div id="qr" class="qr"></div>
-
-<div id="modalcode" class="modalcode"></div>
-
-<div class="row">
-
-<button class="green" id="mark">使用済みにする</button>
-
-<button id="close">閉じる</button>
-
-</div>
-
-</div>
-
-</div>
+<div id="toast" class="toast"></div>
 
 <script>
-
 (function(){
 
-const $=id=>document.getElementById(id);
-
-let tabs=[];
-
-let active=0;
-
-let selected=null;
-
-let saveTimer=null;
-
-const KEY="mhn_qr_tool_v2";
-
-function normalizeCode(x){
-
-return String(x||"").trim();
-
-}
-
-function validCodes(arr){
-
-return Array.isArray(arr)
-
-?arr.map(normalizeCode)
-
-.filter(x=>x&&x.length<200)
-
-.slice(0,100)
-
-:[];
-
-}
-
-function legacyImport(){
-
-let found=null;
-
-try{
-
-for(let i=0;i<localStorage.length;i++){
-
-const k=localStorage.key(i);
-
-const raw=localStorage.getItem(k);
-
-if(!raw)continue;
-
-try{
-
-const o=JSON.parse(raw);
-
-const walk=v=>{
-
-if(found)return;
-
-if(Array.isArray(v)){
-
-const a=v.map(x=>
-
-typeof x==="string"
-
-?x
-
-:(x&&typeof x==="object"
-
-?(x.code||x.value||x.text||"")
-
-:"")
-
-);
-
-const c=validCodes(a);
-
-if(c.length>=2){
-
-found=c;
-
-return;
-
-}
-
-v.forEach(walk);
-
-}else if(v&&typeof v==="object"){
-
-Object.values(v).forEach(walk);
-
-}
-
-};
-
-walk(o);
-
-}catch(e){}
-
-}
-
-}catch(e){}
-
-return found||[];
-
-}
-
-function save(){
-
-clearTimeout(saveTimer);
-
-saveTimer=setTimeout(()=>{
-
-localStorage.setItem(KEY,JSON.stringify(tabs));
-
-},100);
-
-}
-
-function load(){
-
-try{
-
-const a=JSON.parse(
-
-localStorage.getItem(KEY)||"null"
-
-);
-
-if(Array.isArray(a)&&a.length){
-
-tabs=a;
-
-return;
-
-}
-
-}catch(e){}
-
-const legacy=legacyImport();
-
-tabs=[{
-
-title:"特典コード",
-
-codes:legacy.map(c=>({
-
-code:c,
-
-used:false
-
-}))
-
-}];
-
-}
-
-function renderTabs(){
-
-$("tabs").innerHTML="";
-
-tabs.forEach((t,i)=>{
-
-const b=document.createElement("button");
-
-b.className="tab"+(i===active?" active":"");
-
-b.textContent=t.title||("タブ"+(i+1));
-
-b.onclick=()=>{
-
-active=i;
-
-loadTab();
-
-renderTabs();
-
-};
-
-$("tabs").appendChild(b);
-
-});
-
-const add=document.createElement("button");
-
-add.className="tab";
-
-add.textContent="+ タブ追加";
-
-add.onclick=addTab;
-
-$("tabs").appendChild(add);
-
-}
-
-function loadTab(){
-
-const t=tabs[active]||{
-
-title:"特典コード",
-
-codes:[]
-
-};
-
-$("title").value=t.title||"";
-
-$("input").value="";
-
-renderList();
-
-}
-
-function addTab(){
-
-const name=prompt(
-
-"タブ名を入力してください",
-
-"新しいタブ"
-
-);
-
-if(!name)return;
-
-tabs.push({
-
-title:name.trim(),
-
-codes:[]
-
-});
-
-active=tabs.length-1;
-
-save();
-
-renderTabs();
-
-loadTab();
-
-}
-
-function renderList(){
-
-const t=tabs[active];
-
-if(!t)return;
-
-const q=$("search").value.trim().toLowerCase();
-
-const arr=t.codes.filter(x=>
-
-!q||x.code.toLowerCase().includes(q)
-
-);
-
-$("total").textContent=
-
-t.codes.length+"件";
-
-$("unused").textContent=
-
-"未使用 "+t.codes.filter(x=>!x.used).length+"件";
-
-$("used").textContent=
-
-"使用済み "+t.codes.filter(x=>x.used).length+"件";
-
-const list=$("list");
-
-list.innerHTML="";
-
-if(!arr.length){
-
-list.innerHTML=
-
-'<div class="empty">コードがありません</div>';
-
-return;
-
-}
-
-arr.forEach(x=>{
-
-const original=t.codes.indexOf(x);
-
-const row=document.createElement("div");
-
-row.className=
-
-"code"+(x.used?" used":"");
-
-const n=document.createElement("span");
-
-n.className="num";
-
-n.textContent=original+1;
-
-const cb=document.createElement("input");
-
-cb.type="checkbox";
-
-cb.className="check";
-
-cb.checked=!!x.used;
-
-cb.onchange=()=>{
-
-x.used=cb.checked;
-
-save();
-
-renderList();
-
-};
-
-const b=document.createElement("button");
-
-b.className="codebtn";
-
-b.textContent=x.code;
-
-b.onclick=()=>showQR(original);
-
-row.append(n,cb,b);
-
-list.appendChild(row);
-
-});
-
-}
-
-function addCodes(){
-
-const t=tabs[active];
-
-const lines=validCodes(
-
-$("input").value.split(/\r?\n/)
-
-);
-
-const exists=new Set(
-
-t.codes.map(x=>x.code)
-
-);
-
-lines.forEach(c=>{
-
-if(
-
-!exists.has(c)&&
-
-t.codes.length<100
-
-){
-
-t.codes.push({
-
-code:c,
-
-used:false
-
-});
-
-exists.add(c);
-
-}
-
-});
-
-$("input").value="";
-
-save();
-
-renderList();
-
-}
-
-function showQR(i){
-
-const x=tabs[active].codes[i];
-
-if(!x)return;
-
-selected=i;
-
-$("qr").innerHTML="";
-
-$("modalcode").textContent=x.code;
-
-new QRCode(
-
-$("qr"),
-
-{
-
-text:x.code,
-
-width:240,
-
-height:240,
-
-correctLevel:QRCode.CorrectLevel.M
-
-}
-
-);
-
-$("mark").textContent=
-
-x.used
-
-?"未使用に戻す"
-
-:"使用済みにする";
-
-$("modal").classList.add("show");
-
-}
-
-$("close").onclick=()=>
-
-$("modal").classList.remove("show");
-
-$("modal").onclick=e=>{
-
-if(e.target===$("modal"))
-
-$("modal").classList.remove("show");
-
-};
-
-$("mark").onclick=()=>{
-
-if(selected===null)return;
-
-const x=
-
-tabs[active].codes[selected];
-
-x.used=!x.used;
-
-save();
-
-$("modal").classList.remove("show");
-
-renderList();
-
-};
-
-$("add").onclick=addCodes;
-
-$("clear").onclick=()=>
-
-$("input").value="";
-
-$("search").oninput=renderList;
-
-$("title").oninput=()=>{
-
-tabs[active].title=
-
-$("title").value;
-
-save();
-
-renderTabs();
-
-};
-
-load();
-
-renderTabs();
-
-loadTab();
+  const KEY = "mhn_qr_tool_v2";
+  const $ = id => document.getElementById(id);
+
+  let tabs = [];
+  let active = 0;
+  let selected = null;
+  let toastTimer = null;
+
+  function toast(message){
+    const el = $("toast");
+    el.textContent = message;
+    el.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>el.classList.remove("show"),1800);
+  }
+
+  function normalizeCode(value){
+    return String(value || "").trim();
+  }
+
+  function makeCodes(lines){
+    const out = [];
+    const seen = new Set();
+
+    lines.forEach(v=>{
+      const c = normalizeCode(v);
+      if(!c || c.length > 200 || seen.has(c)) return;
+      seen.add(c);
+      out.push(c);
+    });
+
+    return out.slice(0,100);
+  }
+
+  function normalizeTabs(data){
+    if(!Array.isArray(data)) return [];
+
+    return data.map((t,i)=>({
+      title: String(t?.title || ("タブ"+(i+1))).trim() || ("タブ"+(i+1)),
+      codes: Array.isArray(t?.codes)
+        ? t.codes.map(x=>{
+            if(typeof x === "string") return {code:normalizeCode(x),used:false};
+            return {
+              code:normalizeCode(x?.code),
+              used:!!x?.used
+            };
+          }).filter(x=>x.code).slice(0,100)
+        : []
+    }));
+  }
+
+  function importLegacy(){
+    const result = [];
+
+    try{
+      for(let i=0;i<localStorage.length;i++){
+        const key = localStorage.key(i);
+        const raw = localStorage.getItem(key);
+        if(!raw) continue;
+
+        try{
+          const obj = JSON.parse(raw);
+
+          function walk(value){
+            if(result.length >= 100) return;
+
+            if(Array.isArray(value)){
+              const codes = value.map(x=>{
+                if(typeof x === "string") return x;
+                if(x && typeof x === "object")
+                  return x.code || x.value || x.text || "";
+                return "";
+              });
+
+              const cleaned = makeCodes(codes);
+
+              if(cleaned.length >= 2){
+                cleaned.forEach(c=>{
+                  if(!result.includes(c) && result.length < 100)
+                    result.push(c);
+                });
+              }
+
+              value.forEach(walk);
+            }else if(value && typeof value === "object"){
+              Object.values(value).forEach(walk);
+            }
+          }
+
+          walk(obj);
+
+          if(result.length >= 100) break;
+
+        }catch(e){}
+      }
+    }catch(e){}
+
+    return result;
+  }
+
+  function save(){
+    localStorage.setItem(KEY, JSON.stringify(tabs));
+  }
+
+  function load(){
+    try{
+      const saved = JSON.parse(localStorage.getItem(KEY) || "null");
+      if(Array.isArray(saved) && saved.length){
+        tabs = normalizeTabs(saved);
+        if(tabs.length) return;
+      }
+    }catch(e){}
+
+    const legacy = importLegacy();
+
+    tabs = [{
+      title:"特典コード",
+      codes:legacy.map(code=>({code,used:false}))
+    }];
+
+    save();
+  }
+
+  function current(){
+    if(!tabs.length){
+      tabs.push({title:"特典コード",codes:[]});
+      active=0;
+    }
+    if(active >= tabs.length) active = tabs.length-1;
+    return tabs[active];
+  }
+
+  function renderTabs(){
+    const box = $("tabs");
+    box.innerHTML = "";
+
+    tabs.forEach((tab,i)=>{
+      const wrap = document.createElement("div");
+      wrap.className = "tab" + (i===active ? " active" : "");
+
+      const name = document.createElement("span");
+      name.className = "tab-name";
+      name.textContent = tab.title;
+
+      const x = document.createElement("button");
+      x.className = "tab-x";
+      x.type = "button";
+      x.textContent = "×";
+      x.title = "このタブを削除";
+
+      wrap.appendChild(name);
+      wrap.appendChild(x);
+
+      name.onclick = ()=>{
+        active=i;
+        selected=null;
+        renderTabs();
+        loadCurrent();
+      };
+
+      x.onclick = e=>{
+        e.stopPropagation();
+        deleteTab(i);
+      };
+
+      box.appendChild(wrap);
+    });
+
+    const add = document.createElement("button");
+    add.className = "add-tab";
+    add.type = "button";
+    add.textContent = "+ タブ追加";
+    add.onclick = addTab;
+    box.appendChild(add);
+  }
+
+  function loadCurrent(){
+    const t = current();
+    $("title").value = t.title;
+    $("input").value = "";
+    $("search").value = "";
+    renderList();
+  }
+
+  function addTab(){
+    const name = prompt("新しいタブ名を入力してください","新しいタブ");
+    if(name === null) return;
+
+    const title = name.trim();
+    if(!title){
+      alert("タブ名を入力してください。");
+      return;
+    }
+
+    tabs.push({title,codes:[]});
+    active = tabs.length-1;
+    save();
+    renderTabs();
+    loadCurrent();
+    toast("新しいタブを追加しました");
+  }
+
+  function deleteTab(index){
+    if(tabs.length <= 1){
+      alert("最後の1つのタブは削除できません。");
+      return;
+    }
+
+    const name = tabs[index].title;
+
+    if(!confirm("「"+name+"」を削除しますか？\nこのタブ内のコードもすべて削除されます。"))
+      return;
+
+    tabs.splice(index,1);
+
+    if(active > index) active--;
+    if(active >= tabs.length) active=tabs.length-1;
+
+    save();
+    renderTabs();
+    loadCurrent();
+    toast("タブを削除しました");
+  }
+
+  function renameTab(){
+    const t = current();
+
+    const name = prompt("新しいタブ名を入力してください",t.title);
+    if(name === null) return;
+
+    const title = name.trim();
+
+    if(!title){
+      alert("タブ名を入力してください。");
+      return;
+    }
+
+    t.title=title;
+    save();
+    renderTabs();
+    $("title").value=title;
+    toast("タブ名を変更しました");
+  }
+
+  function addCodes(){
+    const t = current();
+
+    const input = $("input").value;
+    const codes = makeCodes(input.split(/\r?\n/));
+
+    if(!codes.length){
+      alert("追加するコードを入力してください。");
+      return;
+    }
+
+    const existing = new Set(t.codes.map(x=>x.code));
+    let added=0;
+
+    for(const code of codes){
+      if(t.codes.length >= 100) break;
+
+      if(!existing.has(code)){
+        t.codes.push({code,used:false});
+        existing.add(code);
+        added++;
+      }
+    }
+
+    $("input").value="";
+    save();
+    renderList();
+
+    if(added){
+      toast(added+"件追加しました");
+    }else{
+      toast("追加できる新しいコードがありません");
+    }
+  }
+
+  function renderList(){
+    const t = current();
+    const query = $("search").value.trim().toLowerCase();
+
+    const filtered = t.codes.filter(x=>
+      !query || x.code.toLowerCase().includes(query)
+    );
+
+    $("total").textContent = t.codes.length+"件";
+    $("unused").textContent =
+      "未使用 "+t.codes.filter(x=>!x.used).length+"件";
+    $("used").textContent =
+      "使用済み "+t.codes.filter(x=>x.used).length+"件";
+
+    const list=$("list");
+    list.innerHTML="";
+
+    if(!filtered.length){
+      list.innerHTML =
+        '<div class="empty">'+
+        (t.codes.length ? "検索結果がありません" : "まだコードがありません")+
+        '</div>';
+      return;
+    }
+
+    filtered.forEach(item=>{
+      const index=t.codes.indexOf(item);
+
+      const row=document.createElement("div");
+      row.className="code-row"+(item.used?" used":"");
+
+      const num=document.createElement("span");
+      num.className="num";
+      num.textContent=index+1;
+
+      const check=document.createElement("input");
+      check.type="checkbox";
+      check.className="check";
+      check.checked=item.used;
+      check.setAttribute("aria-label","使用済み");
+
+      check.onchange=()=>{
+        item.used=check.checked;
+        save();
+        renderList();
+      };
+
+      const btn=document.createElement("button");
+      btn.className="code-btn";
+      btn.type="button";
+      btn.textContent=item.code;
+      btn.onclick=()=>showQR(index);
+
+      row.append(num,check,btn);
+      list.appendChild(row);
+    });
+  }
+
+  function showQR(index){
+    const t=current();
+    const item=t.codes[index];
+    if(!item) return;
+
+    selected=index;
+
+    $("qr").innerHTML="";
+    $("modalCode").textContent=item.code;
+
+    if(window.QRCode){
+      new QRCode($("qr"),{
+        text:item.code,
+        width:240,
+        height:240,
+        correctLevel:QRCode.CorrectLevel.M
+      });
+    }else{
+      $("qr").innerHTML =
+        '<div class="empty">QRコード機能を読み込めませんでした。<br>インターネット接続を確認してください。</div>';
+    }
+
+    $("toggleUsed").textContent =
+      item.used ? "未使用に戻す" : "使用済みにする";
+
+    $("modal").classList.add("show");
+  }
+
+  function closeModal(){
+    $("modal").classList.remove("show");
+    selected=null;
+  }
+
+  $("add").onclick=addCodes;
+  $("clearInput").onclick=()=>{$("input").value=""};
+  $("rename").onclick=renameTab;
+  $("deleteTab").onclick=()=>deleteTab(active);
+  $("search").oninput=renderList;
+
+  $("title").oninput=()=>{
+    current().title=$("title").value;
+    save();
+    renderTabs();
+  };
+
+  $("closeModal").onclick=closeModal;
+
+  $("modal").onclick=e=>{
+    if(e.target === $("modal")) closeModal();
+  };
+
+  $("toggleUsed").onclick=()=>{
+    if(selected===null) return;
+
+    const item=current().codes[selected];
+    if(!item) return;
+
+    item.used=!item.used;
+    save();
+    closeModal();
+    renderList();
+  };
+
+  document.addEventListener("keydown",e=>{
+    if(e.key==="Escape") closeModal();
+  });
+
+  load();
+  renderTabs();
+  loadCurrent();
 
 })();
-
 </script>
-
 </body>
-
 </html>
